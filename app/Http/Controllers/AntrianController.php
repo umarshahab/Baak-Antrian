@@ -9,25 +9,22 @@ use Illuminate\Support\Facades\Auth;
 
 class AntrianController extends Controller
 {
-    // 1. Halaman Depan (Form Mahasiswa)
+    // Form Ambil Antrian Mahasiswa
     public function index()
     {
-        // Jika Petugas login, lempar ke dashboard
-        if (Auth::user()->role == 'petugas') {
+        if (Auth::user()->role != 'mahasiswa') {
             return redirect()->route('dashboard');
         }
 
-        // Generate Nomor Antrian (A-001, dst)
         $jumlahHariIni = Antrian::whereDate('created_at', Carbon::today())->count();
         $nomorAntrian = 'A-' . str_pad($jumlahHariIni + 1, 3, '0', STR_PAD_LEFT);
 
         return view('antrian.index', compact('nomorAntrian'));
     }
 
-    // 2. Proses Simpan Data (Nama, NIM, Prodi)
+    // Simpan data antrian
     public function store(Request $request)
-    {
-        // Validasi wajib diisi
+    { 
         $request->validate([
             'nim' => 'required',
             'prodi' => 'required',
@@ -35,32 +32,48 @@ class AntrianController extends Controller
 
         Antrian::create([
             'nomor_antrian' => $request->nomor_antrian,
-            'nama'          => Auth::user()->name, // Nama ambil otomatis dari akun login
+            'nama'          => Auth::user()->name,
             'nim'           => $request->nim,
             'prodi'         => $request->prodi,
             'layanan'       => 'BAAK',
             'status'        => 'menunggu'
         ]);
 
-        return redirect()->back()->with('success', 'Berhasil! Nomor antrian Anda: ' . $request->nomor_antrian);
+        return redirect()->route('mhs.dashboard')
+            ->with('success', 'Berhasil! Nomor antrian Anda: ' . $request->nomor_antrian);
     }
 
-    // 3. Dashboard Petugas
+    // Dashboard Petugas
     public function dashboard()
-    {
-        // Proteksi: Mahasiswa tidak boleh masuk sini
+    { 
         if (Auth::user()->role != 'petugas') {
-            return redirect()->route('home');
+            return redirect()->route('mhs.dashboard');
         }
 
         $antrians = Antrian::whereDate('created_at', Carbon::today())->get();
         return view('antrian.dashboard', compact('antrians'));
     }
 
-    // 4. Update Status (Panggil/Selesai)
+    // Dashboard Mahasiswa
+    public function dashboardMhs()
+    {
+        if (Auth::user()->role != 'mahasiswa') {
+            return redirect()->route('dashboard');
+        }
+
+        $antrians = Antrian::whereDate('created_at', Carbon::today())->get();
+
+        $antrianSaya = Antrian::where('nim', Auth::user()->nim)
+            ->whereDate('created_at', Carbon::today())
+            ->first();
+
+        return view('antrian.dashboardmhs', compact('antrians', 'antrianSaya'));
+    }
+
+    // Update Status Petugas
     public function update(Request $request, $id)
     {
         Antrian::find($id)->update(['status' => $request->status]);
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Status antrian berhasil diperbarui!');
     }
 }
