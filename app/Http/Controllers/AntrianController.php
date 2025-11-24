@@ -21,6 +21,11 @@ class AntrianController extends Controller
 
         return view('antrian.index', compact('nomorAntrian'));
     }
+    // Tambahkan fungsi ini untuk halaman kontak
+    public function kontak()
+    {
+        return view('antrian.kontak');
+    }
 
     // Simpan data antrian
     public function store(Request $request)
