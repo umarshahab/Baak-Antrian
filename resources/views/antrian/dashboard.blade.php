@@ -8,17 +8,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #e0e0e0; 
+            background-color: #d6d6d6; /* background lebih gelap */
         }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
     {{-- Navbar --}}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">Dashboard Petugas BAAK</a>
-            
+            <a class="navbar-brand fw-bold" href="#">Dashboard Petugas BAAK</a> 
             <div class="d-flex">
                 <span class="navbar-text text-white me-3">
                     Halo, {{ Auth::user()->name }}
@@ -31,7 +33,24 @@
         </div>
     </nav>
 
-    <div class="container">
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    {{-- Main Content --}}
+    <main class="container flex-grow-1 my-4">
+
+        {{-- Card Daftar Antrian --}}
         <div class="card shadow-sm border-0">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Daftar Antrian Hari Ini</h5>
@@ -97,10 +116,11 @@
                 </div>
             </div>
         </div>
-    </div>
+
+    </main>
 
     {{-- Footer --}}
-    <footer class="bg-dark text-white text-center py-3 mt-4">
+    <footer class="bg-dark text-white text-center py-3 mt-auto">
         <small>© {{ date('Y') }} BAAK Politeknik. All Rights Reserved.</small>
     </footer>
 
